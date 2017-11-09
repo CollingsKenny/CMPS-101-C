@@ -1,0 +1,9 @@
+ Kenneth Collings
+ Keacolli
+ PA~
+
+List.h			the headerfile for the List functions
+List.c			contains the functions of the List
+ListClient.c	tests for the list class
+Makefile		used in building the project
+README
