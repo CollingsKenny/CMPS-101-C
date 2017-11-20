@@ -1,6 +1,6 @@
 // Kenneth Collings
-// 1479278
-// PA01
+// keacolli
+// PA4
 #ifndef _LIST_H_INCLUDE_
 #define _LIST_H_INCLUDE_
 

@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "List.h"
-
+/*
 int main(int argc, char* argv[]){
    
    List A = newList();
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
 
    return(0);
 }
-
+*/
 /*
 Output of this program:
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
@@ -76,3 +76,5 @@ true
 21
 0
 */
+
+
