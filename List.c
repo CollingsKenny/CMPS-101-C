@@ -1,6 +1,6 @@
 // Kenneth Collings
 // Keacolli
-// PA4
+// PA5
 #include <stdio.h>
 #include <stdlib.h>
 #include "List.h"
@@ -90,8 +90,6 @@ int index(List L) {
         printf("List Error: index() called on NULL List reference\n");
         exit(1);
     }
-    //if( length(L) <= 0 )
-        //return -1;
     if(L->front == NULL)
         return -1;
     return L->index;
@@ -156,7 +154,7 @@ void clear(List L){
 // If List is non-empty, places the cursor under the front element,
 // otherwise does nothing.
 void moveFront(List L) {
-    if (L->length >= 0) {
+    if (length(L) >= 0) {
         L->cursor = L->front;
         L->index = 0;
     }

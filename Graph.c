@@ -1,6 +1,6 @@
 // Kenneth Collings
 // Keacolli
-// PA4
+// PA5
 #include <stdio.h>
 #include <stdlib.h>
 #include "List.h"
@@ -12,12 +12,18 @@
 typedef struct GraphObj{
 	int order;	// # of vertices
 	int size;	// # of edges
-	int source;	// label of the vertex that was most recently used as source for the BFS
 
 	List * neighbors;
 	int * colors;
 	int * parents;
+
+	//BFS
+	int source;
 	int * distance;
+
+	//DFS
+	int * finish;
+	int * discover;
 } GraphObj;
 
 
@@ -27,16 +33,24 @@ Graph newGraph(int n) {
 	G = malloc(sizeof(GraphObj));
 	G->order = n;
 	G->size = 0;
-	G->source = NIL;
 
 	G->neighbors = (List*) malloc((n+1) * sizeof(List));
 	G->colors = (int*) malloc((n+1) * sizeof(int));
 	G->parents = (int*) malloc((n+1) * sizeof(int));
+	//BFS
+	G->source = NIL;
 	G->distance = (int*) malloc((n+1) * sizeof(int));
+	//DFS
+	G->discover = (int*) malloc((n+1) * sizeof(int));
+	G->finish = (int*) malloc((n+1) * sizeof(int));
 
 	//init neighbors
 	for(int i = 1; i <= n; i++) {
 		G->neighbors[i] = newList();
+		G->parents[i] = NIL;
+		G->discover[i] = UNDEF;
+		G->finish[i] = UNDEF;
+
 	}
 	return G;
 }
@@ -46,11 +60,13 @@ void freeGraph(Graph * pG) {
     	for(int i = 1; i <= getOrder(*pG); i++) {
     	  freeList(&(G->neighbors[i]));
        }
+       free(G->distance);
+
        free(G->neighbors);
        free(G->colors);
        free(G->parents);
-       free(G->distance);
-
+       free(G->discover);
+       free(G->finish);
 
        free(*pG);
        *pG = NULL;
@@ -73,8 +89,6 @@ int getParent(Graph G, int u) {
 		printf("Graph Error: getParent() called with u out of bounds\n");
 		exit(1);
 	}
-	if(getSource(G) == NIL)
-		return NIL;
 	return G->parents[u];
 }
 int getDist(Graph G, int u) {
@@ -96,10 +110,10 @@ void getPath(List L, Graph G, int u) {
 		exit(1);
 	}
 
-	if( u == G->source) {
+	if(u == G->source) {
 		append(L, u);
 	}
-	else if( getParent(G, u) == NIL) {
+	else if(getParent(G, u) == NIL) {
 		append(L, NIL);
 	}
 	else {
@@ -107,12 +121,28 @@ void getPath(List L, Graph G, int u) {
 		append(L, u);
 	}
 }
+
+int getDiscover(Graph G, int u) {
+	if(!(1 <= u && u <= getOrder(G))) {
+		printf("Graph Error: getDiscover() called with u out of bounds\n");
+		exit(1);
+	}
+
+	return G->discover[u];
+}
 void makeNull(Graph G) {
 	for(int i = 1; i <= getOrder(G); i++) {
 		clear(G->neighbors[i]);
 	}
 }
+int getFinish(Graph G, int u) {
+	if(!(1 <= u && u <= getOrder(G))) {
+		printf("Graph Error: getDiscover() called with u out of bounds\n");
+		exit(1);
+	}
 
+	return G->finish[u];
+}
 void addArcHelper(Graph G, int u, int v) {
 	List l = G->neighbors[u];
 
@@ -130,6 +160,7 @@ void addArcHelper(Graph G, int u, int v) {
 			insertBefore(l,v);
 	}
 }
+
 void addEdge(Graph G, int u, int v) {
 	if(!(1 <= u && u <= getOrder(G))) {
 			printf("Graph Error: addEdge() called with u out of bounds\n");
@@ -189,9 +220,73 @@ void BFS(Graph G, int s) {
 	}
 	freeList(&Q);
 }
+void DFSVisit(Graph G, int u, int * time, List S) {
+	G->discover[u] = ++(*time);
+	G->colors[u] = 1;
+	List l = G->neighbors[u];
+	moveFront(l);
+	while(index(l) >= 0) {
+		int v = get(l);
+		if(G->colors[v] == 0) {
+			G->parents[v] = u;
+			DFSVisit(G, v, time, S);
+		}
+		moveNext(l);
+	}
+	G->colors[u] = 2;
+	G->finish[u] = ++(*time);
+	insertAfter(S, u);
 
-
+}
+void DFS(Graph G, List S) {
+	if (length(S) != getOrder(G)) {
+		printf("Graph Error: DFS() called with invalid list s\n");
+		exit(1);
+	}
+	int time = 0;
+	for(int i = 1; i <= getOrder(G); i++) {
+		G->colors[i] = 0;
+		G->parents[i] = NIL;
+	}
+	append(S, UNDEF);
+	moveBack(S);
+	for(int i = 1; i <= getOrder(G); i++) {
+		int u = front(S);
+		deleteFront(S);
+		if(G->colors[u] == 0) {
+			DFSVisit(G, u, &time, S);
+		}
+	}
+	deleteFront(S);
+}
 /*** Other operations ***/
+Graph transpose(Graph G) {
+	Graph H = newGraph(getOrder(G));
+	for(int u = 1; u <= getOrder(G); u++) {
+		List l = G->neighbors[u];
+		moveFront(l);
+		while(index(l) >= 0) {
+			int v = get(l);
+			addArc(H, v, u);
+			moveNext(l);
+		}
+	}
+	return H;
+}
+
+Graph copyGraph(Graph G) {
+	Graph H = newGraph(getOrder(G));
+	for(int u = 1; u <= getOrder(G); u++) {
+		List l = G->neighbors[u];
+		moveFront(l);
+		while(index(l) >= 0) {
+			int v = get(l);
+			addArc(H, u, v);
+			moveNext(l);
+		}
+	}
+	return H;
+}
 void printGraph(FILE* out, Graph G) {
 	for(int i = 1; i <= getOrder(G); i++) {
 		fprintf(out, "%i: ", i);

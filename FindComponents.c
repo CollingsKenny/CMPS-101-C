@@ -1,6 +1,6 @@
 // Kenneth Collings
 // Keacolli
-// PA4
+// PA5
 
 
 #include<stdio.h>
@@ -15,14 +15,13 @@
 //based off of fileIO example
 //https://classes.soe.ucsc.edu/cmps101/Fall17/Examples/C/FileIO/FileIO.c
 int main(int argc, char * argv[]){
-
     FILE *in, *out;
     char line[MAX_LEN];
     char *token;
 
     int n = 0;
-    Graph G;
-    List P;
+    Graph G, H;
+    List S;
 
     // check command line for correct number of arguments
     if( argc != 3 ){
@@ -43,7 +42,7 @@ int main(int argc, char * argv[]){
     }
 
 
-//Part 1
+//Read Input File and assemble a graph object G
     //set n
     if(fgets(line, MAX_LEN, in) != NULL) {
     	n = atoi(line);
@@ -60,44 +59,56 @@ int main(int argc, char * argv[]){
     	v = atoi(token);
     	if( u == 0 && v == 0)
     		break;
-    	addEdge(G, u, v);
+    	addArc(G, u, v);
     }
+//Print the adjacency list of G to output
+    fprintf(out, "Adjacency list representation of G:\n");
     printGraph(out, G);
-//Part 2
-    P = newList();
-    while(fgets(line, MAX_LEN, in) != NULL) {
-    	int s, d;
-    	token = strtok(line, " ");
 
-    	s = atoi(token);
-    	token = strtok(NULL, " ");
-    	d = atoi(token);
-    	if( s == 0 && d == 0)
-    		break;
-    	clear(P);
-    	BFS(G, s);
-    	int disU = getDist(G,d);
-    	getPath(P, G, d);
-    	fprintf(out, "\n\n");
-    	fprintf(out, "The distance from %i to %i is ", s, d);
-    	if(disU == INF) {
-    		fprintf(out, "infinity\n");
-    		fprintf(out, "No %i-%i path exists", s, d);
+//Run DFS on G, and G' by decreasing finish times
+    H = transpose(G);
+    S = newList();
+    int connected = 0;
+    for(int i = 1; i <= getOrder(G); i++) append(S, i);
+
+    DFS(G, S);
+    DFS(H, S);
+
+    printGraph(stdout, H);
+    printList(stdout, S);
+    List P = newList();
+
+
+    for(int i = 1; i <= getOrder(H); i++) {
+       	if(getParent(H, i) == NIL) {
+       		connected++;
+       	}
+    }
+    fprintf(out, "\nG contains %i strongly connected components:", connected);
+
+    moveBack(S);
+    for(int i = 1; i <= connected; i++) {
+    	fprintf(out, "\nComponent %i: ", i);
+
+    	while (getParent(H, get(S)) != NIL) {
+    		prepend(P, get(S));
+    		movePrev(S);
     	}
-    	else {
-    		fprintf(out, "%i", disU);
-    		fprintf(out, "\nA shortest %i-%i path is: ", s, d);
-    		printList(out, P);
-    	}
+		prepend(P, get(S));
+		movePrev(S);
+
+		printList(out, P);
+		clear(P);
     }
 
-    //close files and free the memory
+//close files and free the memory
     fclose(in);
     fclose(out);
 
     freeGraph(&G);
+    freeGraph(&H);
+    freeList(&S);
     freeList(&P);
-
 
     return(0);
 }

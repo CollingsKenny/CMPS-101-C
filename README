@@ -1,12 +1,12 @@
  Kenneth Collings
  Keacolli
- PA04
+ PA5
 
-List.c		contains the functions of the List
-List.h		the headerfile for the List functions
-Graph.c		contains the functions of the Graph
-Graph.h		the headerfile for the Graph functions
-GraphTest.c	tests for the Graph class
-FindPath.c	takes an finds the paths and distance per an imput graph file
-Makefile	used in building the project
+List.c				contains the functions of the List
+List.h				the headerfile for the List functions
+Graph.c				contains the functions of the Graph
+Graph.h				the headerfile for the Graph functions
+GraphTest.c			tests for the Graph class
+FindComponents.c	takes an finds the paths and distance per an imput graph file
+Makefile			used in building the project
 README
