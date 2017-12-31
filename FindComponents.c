@@ -14,7 +14,7 @@
 
 //based off of fileIO example
 //https://classes.soe.ucsc.edu/cmps101/Fall17/Examples/C/FileIO/FileIO.c
-int main(int argc, char * argv[]){
+int main1(int argc, char * argv[]){
     FILE *in, *out;
     char line[MAX_LEN];
     char *token;

@@ -9,29 +9,18 @@
 int main(int argc, char* argv[]){
 
 	Graph G = newGraph(5);
-	List D = newList();
+	Graph H;
 
-	addEdge(G, 1, 2);
-	addEdge(G, 1, 3);
-	addEdge(G, 2, 4);
-	addEdge(G, 2, 5);
-	addEdge(G, 3, 4);
-	addEdge(G, 4, 4);
+	addArc(G, 1, 2);
+	addArc(G, 1, 3);
+	addArc(G, 2, 4);
+	addArc(G, 2, 5);
+	addArc(G, 3, 4);
+	addArc(G, 4, 4);
 
 	printf("%i %i", getOrder(G), getSize(G));
 
-	BFS(G, 4);
 
-	getPath(D, G, 2);
-
-	printList(stdout, D);
-	BFS(G, 1);
-
-	getPath(D, G, 4);
-	printf("\n\n");
-	printList(stdout, D);
-	printf("\n\n\n");
-	printGraph(stdout, G);
 
 
 	List S = newList();
@@ -42,17 +31,21 @@ int main(int argc, char* argv[]){
 	      fprintf(stdout, "%d: %2d %2d %2d\n", i, getDiscover(G, i), getFinish(G, i), getParent(G, i));
 	   }
 
-	G = Transpose(G, S);
-	printGraph(stdout, G);
+	H = transpose(G);
+	printGraph(stdout, H);
+	DFS(H, S);
 	printf("\n");
 	for(int i = 1; i <= getOrder(G); i++){
-	      fprintf(stdout, "%d: %2d %2d %2d\n", i, getDiscover(G, i), getFinish(G, i), getParent(G, i));
+	      fprintf(stdout, "%d: %2d %2d %2d\n", i, getDiscover(H, i), getFinish(H, i), getParent(H, i));
 	   }
 
 
 	makeNull(G);
 	printf("\n");
 	printGraph(stdout, G);
+	freeGraph(&G);
+	freeGraph(&H);
+	freeList(&S);
 
 	return 0;
 }
